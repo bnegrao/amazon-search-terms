@@ -46,8 +46,7 @@ public class AmazonAPIService {
 	Set<String> allKeywordsFound = Collections.synchronizedSet(new HashSet<String>());
 
 	// keywords retrieved from the completion api, that will be used as search terms
-	// for subsequent
-	// recursive searches.
+	// for subsequent recursive searches.
 	LinkedBlockingDeque<String> toBeSearched = new LinkedBlockingDeque<>(QUEUE_CAPACITY);
 
 	public Set<String> recursiveSearch(String keyword, long timeout) throws InterruptedException, ExecutionException {
