@@ -33,9 +33,16 @@ public class EstimationServiceIntegrationTest {
 	@Test
 	public void integrationTest() throws InterruptedException, ExecutionException {				
 		
-		int score = estimationService.estimate("harry potter", 10000);		
+		int score = estimationService.estimate("gloria bucco", 10000);		
+		assertTrue(score < 10);
+	}	
+	
+	
+	@Test
+	public void integrationTestLong() throws InterruptedException, ExecutionException {				
+		
+		int score = estimationService.estimate("canon", 10000);		
 		assertTrue(score > 1000);
 	}		
-	
 
 }

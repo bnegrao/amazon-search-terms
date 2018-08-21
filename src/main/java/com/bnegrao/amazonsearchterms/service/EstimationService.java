@@ -24,9 +24,8 @@ public class EstimationService {
 	/* (non-Javadoc)
 	 * @see com.bnegrao.amazonsearchterms.estimates.EstimationService#estimate(java.lang.String)
 	 */
-	public int estimate(String keyword, int timeoutMiliseconds) throws InterruptedException, ExecutionException {
-		Set<String> autocompleteList = amazonService.recursiveSearch(keyword, new Date().getTime() + timeoutMiliseconds);
-
+	public int estimate(String keyword, long timeoutMiliseconds) throws InterruptedException, ExecutionException {
+		Set<String> autocompleteList = amazonService.recursiveSearch(keyword, timeoutMiliseconds);
 
 		int score = autocompleteList.size();
 		logger.info("Keyword '" + keyword + "' had score " + score);

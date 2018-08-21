@@ -1,5 +1,6 @@
 package com.bnegrao.amazonsearchterms.estimates;
 
+import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +18,18 @@ public class EstimationController {
 	EstimationService estimationService;
 	
 	@RequestMapping(path="estimate", method=RequestMethod.GET)
-	public EstimationResponse estimate (@RequestParam(value="keyword", required = true) String keyword) throws InterruptedException, ExecutionException {
+	public EstimationResponse estimate (@RequestParam(value="keyword", required = true) String keyword,
+			@RequestParam(value="timeoutMilis", required=false, defaultValue="10000") long timeoutMilis) throws InterruptedException, ExecutionException {			
 		
-		return new EstimationResponse(keyword, estimationService.estimate(keyword, 30000));
+		String keywordClean=keyword.trim().replaceAll("\\s+", " ");
+		
+		long startTime = new Date().getTime();
+		
+		int score = estimationService.estimate(keywordClean, timeoutMilis);
+		
+		long finishTime = new Date().getTime();
+		
+		return new EstimationResponse(keyword, score , finishTime - startTime);
 		
 	}
 	

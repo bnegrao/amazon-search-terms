@@ -1,8 +1,11 @@
 package com.bnegrao.amazonsearchterms.estimates;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
@@ -45,17 +48,37 @@ public class AmazonAPIServiceTest {
 	
 	@Test
 	public void recursiveSearchTest() throws InterruptedException, ExecutionException {
-		Set<String> a = new TreeSet<String>();
-		a.addAll(makeMock("harry potter", "", " books", " gifts", " lego"));
-		a.addAll(makeMock("harry potter books", " first journey", " second journey"));
-		a.addAll(makeMock("harry potter gifts", " hat", " rabbit"));
-		a.addAll(makeMock("harry potter a", "bracadabra"));
-		a.addAll(makeMock("harry potter b", "oomerang", "ooks"));
+		Map<String, List<String>> data = new HashMap<>();
+		addTo(data, "canon", "canon camera", "canon lens", "canon t6i" );
+		addTo(data, "canon camera", "canon camera bag", "canon camera strap");
+		addTo(data, "canon lens", "canon lens cap", "canon lens hood");
+		addTo(data, "canon a", "canon accessories");
+		addTo(data, "canon b", "canon battery", "canon bag");
 		
-		Set<String> result = amazonApiService.recursiveSearch("harry potter", new Date().getTime() + 1000000000l);
+		makeMocks(data);
 		
-		Assert.assertEquals(a, result);				
+		Set<String> expectedResults = convertMapValuesToSet(data);		
+			
+		Set<String> result = amazonApiService.recursiveSearch("canon", new Date().getTime() + 1000000000l);
+		
+		Assert.assertEquals(expectedResults, result);				
 	}
+	
+
+	Set<String> convertMapValuesToSet(Map<String, List<String>> data) {
+		Set<String> set = new TreeSet<>();
+		for (String key: data.keySet()) {
+			set.addAll(data.get(key));
+		}
+		return set;
+		
+	}
+	
+	private void addTo(Map<String, List<String>> data, String prefix, String... keywords) {
+		List<String> list = Arrays.asList(keywords);
+		data.put(prefix, list);
+	}
+	
 	
 	@Test
 	public void testNoResults() throws InterruptedException, ExecutionException {
@@ -65,12 +88,12 @@ public class AmazonAPIServiceTest {
 		Assert.assertTrue(result.isEmpty());
 	}
 
-	@SuppressWarnings("unchecked")
-	private List<String> makeMock(String prefix, String... subTerms) {		
-		Mockito.when(restTemplate.getForObject(COMPLETION_SERVICE_URL + prefix,
-				ArrayList.class)).thenReturn(makeListOf(prefix, subTerms));		
+	private void makeMocks(Map<String, List<String>> data) {
 		
-		return (ArrayList<String>)makeListOf(prefix, subTerms).get(1);
+		for (String prefix: data.keySet()) {
+			Mockito.when(restTemplate.getForObject(COMPLETION_SERVICE_URL + prefix,
+					ArrayList.class)).thenReturn(createAmazonLikeObject(prefix, data.get(prefix)));				
+		}				
 	}
 
 
@@ -80,12 +103,12 @@ public class AmazonAPIServiceTest {
 	 * @param subTerms
 	 * @return
 	 */
-	private ArrayList<Object> makeListOf(String prefix, String... subTerms) {
+	private ArrayList<Object> createAmazonLikeObject(String prefix, List<String> subTerms) {
 		ArrayList<Object> list = new ArrayList<Object>();
 		ArrayList<String> sublist = new ArrayList<>();
 		list.add(prefix);
 		for (String term : subTerms) {
-			sublist.add(prefix + term);
+			sublist.add(term);
 		}
 		list.add(sublist);
 		return list;		
