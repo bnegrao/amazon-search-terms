@@ -3,7 +3,7 @@
 ## API endpoints
 
 ### GET /estimate
-**Description:** Returns the `score` of a keyword. The `score` is simply the number of search terms retrieved from the amazon complete api that have the keyword given as prefix.  
+**Description:** Returns the `score` of a keyword. The `score` is simply the number of search terms retrieved from the amazon complete api that have the keyword given as prefix. It is a recursive search, see the section *Implementation Details* bellow for more details on the search algorithm.
 
 **Query Params:**   
 * `keyword`: REQUIRED. The term to be searched. 
@@ -45,10 +45,17 @@
     ]
 }
 ```
+## How to execute the app
+Download the code from github and at the project root folder run the command bellow:
+
+    mvn spring-boot:run
+
+That will run the app in foreground, listening on port 8080. Log messages will be printed out to the console.
+
 
 ## Implementation Details
 
-This implementation is focused in find the maximum amount of search terms within the 'timeoutMilis' interval. The 'score' value is not an estimation, instead it is the exact number of search terms found with the given 'keyword' prefix.
+This implementation is focused in finding the maximum amount of search terms within the 'timeoutMilis' interval. The 'score' value is not an estimation, instead it is the exact number of search terms found with the given 'keyword' prefix.
 
 The algorithm sends requests in parallel to discover for new terms. 
 
