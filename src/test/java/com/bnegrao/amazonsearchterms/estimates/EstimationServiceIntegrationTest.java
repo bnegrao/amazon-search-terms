@@ -6,12 +6,9 @@ import java.util.concurrent.ExecutionException;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.client.RestTemplate;
 
 import com.bnegrao.amazonsearchterms.AmazonSearchTermsApplication;
 import com.bnegrao.amazonsearchterms.service.AmazonAPIService;
@@ -33,16 +30,16 @@ public class EstimationServiceIntegrationTest {
 	@Test
 	public void integrationTest() throws InterruptedException, ExecutionException {				
 		
-		int score = estimationService.estimate("gloria bucco", 10000);		
-		assertTrue(score < 10);
+		EstimationResponse response = estimationService.estimate("gloria bucco", 10000);		
+		assertTrue(response.getScore() < 10);
 	}	
 	
 	
 	@Test
 	public void integrationTestLong() throws InterruptedException, ExecutionException {				
 		
-		int score = estimationService.estimate("canon", 10000);		
-		assertTrue(score > 1000);
+		EstimationResponse response = estimationService.estimate("canon", 10000);		
+		assertTrue(response.getScore() > 1000);
 	}		
 
 }

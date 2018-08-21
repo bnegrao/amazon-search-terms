@@ -1,6 +1,6 @@
 package com.bnegrao.amazonsearchterms.estimates;
 
-import java.util.Date;
+import java.util.HashSet;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,17 +19,19 @@ public class EstimationController {
 	
 	@RequestMapping(path="estimate", method=RequestMethod.GET)
 	public EstimationResponse estimate (@RequestParam(value="keyword", required = true) String keyword,
-			@RequestParam(value="timeoutMilis", required=false, defaultValue="10000") long timeoutMilis) throws InterruptedException, ExecutionException {			
+			@RequestParam(value="timeoutMilis", required=false, defaultValue="10000") long timeoutMilis,
+			@RequestParam(value="showSearchTerms", required=false, defaultValue="false") boolean showSearchTerms) throws InterruptedException, ExecutionException {			
 		
 		String keywordClean=keyword.trim().replaceAll("\\s+", " ");
+				
+		EstimationResponse response = estimationService.estimate(keywordClean, timeoutMilis);
 		
-		long startTime = new Date().getTime();
+		if (!showSearchTerms) {
+			response.setSearchTerms(new HashSet<String>());
+		}
 		
-		int score = estimationService.estimate(keywordClean, timeoutMilis);
+		return response;
 		
-		long finishTime = new Date().getTime();
-		
-		return new EstimationResponse(keyword, score , finishTime - startTime);
 		
 	}
 	

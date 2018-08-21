@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.bnegrao.amazonsearchterms.estimates.EstimationResponse;
+
 @Service
 public class EstimationService {
 
@@ -24,13 +26,19 @@ public class EstimationService {
 	/* (non-Javadoc)
 	 * @see com.bnegrao.amazonsearchterms.estimates.EstimationService#estimate(java.lang.String)
 	 */
-	public int estimate(String keyword, long timeoutMiliseconds) throws InterruptedException, ExecutionException {
+	public EstimationResponse estimate(String keyword, long timeoutMiliseconds) throws InterruptedException, ExecutionException {
+		long startTime = new Date().getTime();
+		
 		Set<String> autocompleteList = amazonService.recursiveSearch(keyword, timeoutMiliseconds);
+		
+		long finishTime = new Date().getTime();	
 
 		int score = autocompleteList.size();
 		logger.info("Keyword '" + keyword + "' had score " + score);
 
-		return score;
+		return new EstimationResponse(keyword, score, finishTime - startTime, autocompleteList);
+		
+			
 	}
 
 }
