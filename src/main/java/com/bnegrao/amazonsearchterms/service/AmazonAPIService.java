@@ -70,7 +70,7 @@ public class AmazonAPIService {
 			if (topTenResults != null) {
 				int topTenResultsSize = topTenResults.size();
 				allKeywordsFound.addAll(topTenResults);
-				topTenResults.remove(keyword);
+				topTenResults.remove(term);
 				topTenResults.stream().forEach(s -> toBeSearched.add(s));
 				if (topTenResultsSize < 10) {
 					// if there is less than 10 results 
