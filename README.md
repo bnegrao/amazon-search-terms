@@ -3,7 +3,7 @@
 ## API endpoints
 
 ### GET /estimate
-**Description:** Returns the `score` of a keyword. The `score` is simply the number of search terms retrieved from the amazon complete api that have the keyword given as prefix. See the section *Implementation Details* bellow for more details on the search algorithm.
+**Description:** Returns the `score` of a keyword after a recursive search of the term on the Amazon Completion API. The `score` is the exact number of search terms retrieved from Amazon and having the keyword given as prefix. See the section *Implementation Details* bellow for more details on the search algorithm.
 
 **Query Params:**   
 * `keyword`: REQUIRED. The term to be searched. 
@@ -57,8 +57,8 @@ That will run the app in foreground, listening on port 8080. Log messages will b
 
 This implementation is focused in finding the maximum amount of search terms within the 'timeoutMilis' interval. The 'score' value is not an estimation, instead it is the exact number of search terms found with the given 'keyword' prefix.
 
-The algorithm sends requests in parallel to discover for new terms. 
+The algorithm sends requests in parallel to speed up the searches. 
 
-If the search term was "canon", the code will query the Amazon Completion API and retrive the "top ten" results, it will then start to search recursively for each of the top ten results for more sub terms. More than that, the code will apend characters from a-z0-9 at the end of each term found in order to find more results that are not in the "top ten" list. 
+To start, the code will query the Amazon Completion API and retrive the "top ten" results, it will then start to search recursively for each of the top ten results for more sub terms. More than that, the code will apend characters from a-z0-9 at the end of each term found in order to find more results that are not in the "top ten" list. 
 
 Look at the class `com.bnegrao.amazonsearchterms.service.AmazonAPIService`
