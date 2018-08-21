@@ -3,7 +3,7 @@
 ## API endpoints
 
 ### GET /estimate
-**Description:** Returns the `score` of a keyword. The `score` is simply the number of search terms retrieved from the amazon complete api that have the keyword given as prefix. See the section *Implementation Details* bellow for more details on the search algorithm.
+**Description:** Returns the `score` of a keyword after a recursive search of the term on the Amazon Completion API. The `score` is the exact number of search terms retrieved from Amazon and having the keyword given as prefix. See the section *Implementation Details* bellow for more details on the search algorithm.
 
 **Query Params:**   
 * `keyword`: REQUIRED. The term to be searched. 
