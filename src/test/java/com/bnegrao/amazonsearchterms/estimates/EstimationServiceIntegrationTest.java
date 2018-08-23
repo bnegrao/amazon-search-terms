@@ -1,6 +1,7 @@
 package com.bnegrao.amazonsearchterms.estimates;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import java.util.concurrent.ExecutionException;
 
@@ -38,8 +39,8 @@ public class EstimationServiceIntegrationTest {
 	@Test
 	public void integrationTestLong() throws InterruptedException, ExecutionException {				
 		
-		EstimationResponse response = estimationService.estimate("canon", 10000);		
+		EstimationResponse response = estimationService.estimate("iphone", 10000);		
 		assertTrue(response.getScore() > 1000);
 	}		
-
+	
 }

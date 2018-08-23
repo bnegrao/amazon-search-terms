@@ -24,6 +24,7 @@ import org.springframework.web.client.RestTemplate;
 import com.bnegrao.amazonsearchterms.AmazonSearchTermsApplication;
 import com.bnegrao.amazonsearchterms.RestTemplateTestConfiguration;
 import com.bnegrao.amazonsearchterms.service.AmazonAPIService;
+import com.bnegrao.amazonsearchterms.service.AmazonApiSearchResult;
 
 
 /**
@@ -49,7 +50,8 @@ public class AmazonAPIServiceTest {
 	@Test
 	public void recursiveSearchTest() throws InterruptedException, ExecutionException {
 		Map<String, List<String>> data = new HashMap<>();
-		addTo(data, "canon", "canon camera", "canon lens", "canon t6i" );
+		addTo(data, "canon", "canon camera", "canon lens", "canon t6i", "canon x strap", 
+				"canon bradley", "canon car", "canon house", "canon money", "canon twister", "canon zipper" );
 		addTo(data, "canon camera", "canon camera bag", "canon camera strap");
 		addTo(data, "canon lens", "canon lens cap", "canon lens hood");
 		addTo(data, "canon a", "canon accessories");
@@ -59,9 +61,9 @@ public class AmazonAPIServiceTest {
 		
 		Set<String> expectedResults = convertMapValuesToSet(data);		
 			
-		Set<String> result = amazonApiService.recursiveSearch("canon", new Date().getTime() + 1000000000l);
+		AmazonApiSearchResult result = amazonApiService.recursiveSearch("canon", new Date().getTime() + 10000000l);
 		
-		Assert.assertEquals(expectedResults, result);				
+		Assert.assertEquals(expectedResults, result.getKeywordsList());				
 	}
 	
 
@@ -83,9 +85,9 @@ public class AmazonAPIServiceTest {
 	@Test
 	public void testNoResults() throws InterruptedException, ExecutionException {
 		
-		Set<String> result = amazonApiService.recursiveSearch("harry potter", new Date().getTime() + 1000000000l);
+		AmazonApiSearchResult result = amazonApiService.recursiveSearch("harry potter", new Date().getTime() + 10000000l);
 		
-		Assert.assertTrue(result.isEmpty());
+		Assert.assertTrue(result.getKeywordsList().isEmpty());
 	}
 
 	private void makeMocks(Map<String, List<String>> data) {

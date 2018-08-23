@@ -3,9 +3,9 @@ package com.bnegrao.amazonsearchterms.service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -33,6 +33,8 @@ public class AmazonAPIService {
 	private RestTemplate restTemplate;
 
 	private Integer nRequests;
+	
+	private Integer nRequestsNoResults;
 
 	private HttpComponentsClientHttpRequestFactory requestsFactory;
 
@@ -43,20 +45,22 @@ public class AmazonAPIService {
 	}
 
 	// all keywords that were retrieved from the completion api
-	Set<String> allKeywordsFound = Collections.synchronizedSet(new HashSet<String>());
+	Set<String> allKeywordsFound = Collections.synchronizedSet(new TreeSet<String>());
 
 	// keywords retrieved from the completion api, that will be used as search terms
 	// for subsequent recursive searches.
 	LinkedBlockingDeque<String> toBeSearched = new LinkedBlockingDeque<>(QUEUE_CAPACITY);
 
-	public Set<String> recursiveSearch(String keyword, long timeout) throws InterruptedException, ExecutionException {
-		long timeToStop = new Date().getTime() + timeout;
+	public AmazonApiSearchResult recursiveSearch(String keyword, long timeout) throws InterruptedException, ExecutionException {
+		long startTime = new Date().getTime();
+		long timeToStop = startTime + timeout;
 		
 		allKeywordsFound.clear();
 		toBeSearched.clear();
 
 		toBeSearched.add(keyword);
 		nRequests = 0;
+		nRequestsNoResults = 0;
 
 		String term = null;
 		while ((term = toBeSearched.pollFirst(300, TimeUnit.MILLISECONDS)) != null) {
@@ -65,20 +69,27 @@ public class AmazonAPIService {
 			}
 
 			// get the topTen results in a synchronous request
-			List<String> topTenResults = callAmazonApi(term, timeToStop);
-			if (topTenResults != null) {
-				int topTenResultsSize = topTenResults.size();
-				allKeywordsFound.addAll(topTenResults);
-				topTenResults.remove(term);
-				topTenResults.stream().forEach(s -> toBeSearched.add(s));
-				if (topTenResultsSize < 10) {
-					// if there is less than 10 results 
-					// there is no need to probe for other values.
-					continue;
-				}
-			} else {
+			List<String> topResults = callAmazonApi(term, timeToStop);
+			if (topResults == null ) {
 				continue;
 			}
+			
+			int topResultsSize = topResults.size();
+		
+			boolean termRemovedFromResults = topResults.remove(term);
+			topResults.stream().forEach(s -> {
+				if (!allKeywordsFound.contains(s))
+					toBeSearched.add(s);
+			});
+			allKeywordsFound.addAll(topResults);
+			if (termRemovedFromResults) allKeywordsFound.add(term);
+			
+			
+			// if there is less than 10 results there is no need to probe for other values.			
+			if (topResultsSize < 10) {
+				continue;
+			}
+
 
 			// probe for other results by concatenating a character at the end of the
 			// keyword 
@@ -91,7 +102,7 @@ public class AmazonAPIService {
 					if (term.matches(".*\\d+.*") && (c+"").matches("\\d") ) {
 						// don't probe for other numerals if the keyword already has numerals
 						continue;
-					}					
+					}														
 					
 					String probeTerm = term + " " + c;
 					CompletableFuture<List<String>> probeNewTerms = CompletableFuture.supplyAsync(() -> {
@@ -99,28 +110,37 @@ public class AmazonAPIService {
 					});
 
 					probeNewTerms.thenApply(searchResults -> {
-						if (searchResults != null) {
-							allKeywordsFound.addAll(searchResults);
-							searchResults.remove(probeTerm);
-							searchResults.stream().forEach(s -> toBeSearched.add(s));
-						}
+						if (searchResults == null) {
+							return null;
+						} 
+						boolean probeTermRemovedFromResults = searchResults.remove(probeTerm);
+						searchResults.stream().forEach(s -> {
+							if (!allKeywordsFound.contains(s))
+								toBeSearched.add(s);
+						});
+						allKeywordsFound.addAll(searchResults);
+						if (probeTermRemovedFromResults) allKeywordsFound.add(probeTerm);	
+												
 						return null;
+
 					});
 				}
 			}
 		}
-		if (toBeSearched != null)
+		if (toBeSearched != null && !toBeSearched.isEmpty()) {
+			log.info("Search timedout before I could examine " + toBeSearched.size() + " terms.");
+			
 			allKeywordsFound.addAll(toBeSearched);
-
-		synchronized (allKeywordsFound) {
-			for (String key : allKeywordsFound) {
-				System.out.println(key + " ");
-			}
 		}
+
 
 		log.info("Invoked " + nRequests + " to the amazon completion API and found " + allKeywordsFound.size()
 				+ " unique results.");
-		return allKeywordsFound;
+		long finishTime = new Date().getTime();	
+		long timeElapsedMilis = finishTime - startTime;
+		boolean searchInterruptedDueToTimeout = toBeSearched != null && toBeSearched.size() > 0;
+		int keywordsNotSearchedDueToTimeout = searchInterruptedDueToTimeout ? toBeSearched.size() : 0;
+		return new AmazonApiSearchResult(allKeywordsFound , nRequests, nRequestsNoResults, searchInterruptedDueToTimeout, keywordsNotSearchedDueToTimeout, timeElapsedMilis);
 	}
 
 
@@ -153,6 +173,10 @@ public class AmazonAPIService {
 					searchResults = (ArrayList<String>) response.get(1);
 				}
 			}
+		}
+		
+		if (json == null || searchResults == null || searchResults.size() == 0) {
+			nRequestsNoResults++;
 		}
 
 		return searchResults;
