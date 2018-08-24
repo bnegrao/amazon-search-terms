@@ -126,7 +126,7 @@ In 10 seconds 'iphone' brought 2094 descendent keywords. The app sent 235 reques
 
 In order to create the scale from '0' to '100', it was necessary to establish a parameter for what would be the score of '100'. The most popular keyword I found was *iphone*, it returns more than 2000 related search terms in within ten seconds. No other term that I tryed could surpass that amount.
 
-So if one keyword brings >= 2000 terms within 10 seconds, it will gain score '100', bellow 2000 is applyed a simple [proportional calculation](http://www.math.com/school/subject1/lessons/S1U2L2DP.html), for example, 1000 terms returned in 10 seconds is score '50', 200 terms is '10'.
+So if one keyword brings >= 2000 terms within 10 seconds, it will gain score '100', bellow 2000 is applied a simple [proportional calculation](http://www.math.com/school/subject1/lessons/S1U2L2DP.html), for example, 1000 terms returned in 10 seconds is score '50', 200 terms is '10'.
 
 The 2000 keywords result is dependent of my machine power and my internet link speed. If your machine performs much better you could increase the 2000 limit using the parameter `estimation.number.of.keywords.upper.limit` in the `application.properties` file.
 
