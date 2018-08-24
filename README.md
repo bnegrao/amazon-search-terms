@@ -118,7 +118,9 @@ The search above ended in just 1941 miliseconds (2 seconds), the keyword "iphone
 }
 ```` 
 
-In 10 seconds 'iphone' brought 2094 descendent keywords. The app sent 235 requests to amazon and all of them returned results as was indicated by `"numberOfRequestsWithNoResults": 0,` .
+In 10 seconds 'iphone' brought 2094 descendent keywords. The app sent 235 requests to amazon and all of them returned results as was indicated by `"numberOfRequestsWithNoResults": 0,`.  
+
+The `"keywordsNotSearchedDueToTimeout": 2004,` means that the application didn't have time to apply the recursive search in '2004' sub terms found because of timeout have expired.  
 
 ## Implementation Details
 
