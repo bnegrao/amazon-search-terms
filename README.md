@@ -91,7 +91,7 @@
 }
 ```
 
-The search above ended in just 1941 miliseconds (2 seconds), the keyword "iphone plastic screen" brought only 10 descendant search terms only. 38 requests were sent to the amazon completion api, but 26 raised no results.
+The search above ended in just 1941 miliseconds (2 seconds), the keyword "iphone plastic screen" brought only 10 descendant search terms. 38 requests were sent to the amazon completion api, but 26 raised no results.
 
 #### Query
 
