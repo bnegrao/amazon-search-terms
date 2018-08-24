@@ -93,7 +93,7 @@ public class AmazonAPIService {
 
 			// probe for other results by concatenating a character at the end of the
 			// keyword 
-			int maxNumberOfWords = 4;
+			int maxNumberOfWords = keyword.split("\\s+").length + 3;
 			if (term.split("\\s+").length < maxNumberOfWords) {
 				if (new Date().getTime() > timeToStop) {
 					break;
